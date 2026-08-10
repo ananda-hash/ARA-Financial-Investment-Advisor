@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARA Financial Advisory — Investment Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --gold: #C8A96E;
+  --gold-light: #E8D5A3;
+  --gold-dark: #8A6D35;
+  --black: #070707;
+  --surface: #0D0D0D;
+  --surface-2: #111111;
+  --surface-3: #161616;
+  --surface-4: #1C1C1C;
+  --border: rgba(200, 169, 110, 0.15);
+  --border-bright: rgba(200, 169, 110, 0.35);
+  --text-primary: #F0EAD6;
+  --text-secondary: #8A8070;
+  --text-muted: #444035;
+  --red: #C0392B;
+  --green: #27AE60;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: var(--black); }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); }
+
+/* ─── NOISE OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.022;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 0 60px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7,7,7,0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.nav-logo-mark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+}
+
+.nav-logo-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  padding-left: 12px;
+  border-left: 1px solid var(--border-bright);
+  margin-left: 4px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--gold); }
+
+.nav-cta {
+  padding: 9px 22px;
+  border: 1px solid var(--gold-dark);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-decoration: none;
+}
+
+.nav-cta:hover {
+  background: var(--gold);
+  color: var(--black);
+}
+
+/* ─── TICKER ─── */
+.ticker {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 34px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.ticker-inner {
+  display: flex;
+  animation: ticker 40s linear infinite;
+  white-space: nowrap;
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 36px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  border-right: 1px solid var(--border);
+}
+
+.ticker-sym { color: var(--text-primary); font-weight: 400; }
+.ticker-up { color: var(--green); }
+.ticker-dn { color: var(--red); }
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  padding: 72px 0 34px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 50%, rgba(200,169,110,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 0% 80%, rgba(200,169,110,0.03) 0%, transparent 60%);
+}
+
+.hero-grid-lines {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(200,169,110,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(200,169,110,0.04) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+
+.hero-left {
+  padding: 80px 60px 80px 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-tag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.2s forwards;
+}
+
+.hero-tag-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hero-tag-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.hero-headline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(48px, 5.5vw, 80px);
+  font-weight: 300;
+  line-height: 1.05;
+  color: var(--text-primary);
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.35s forwards;
+}
+
+.hero-headline em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-desc {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  max-width: 420px;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.5s forwards;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  opacity: 0;
+  animation: fadeUp 0.9s ease 0.65s forwards;
+}
+
+.btn-primary {
+  padding: 14px 32px;
+  background: var(--gold);
+  color: var(--black);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  background: var(--gold-light);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(200,169,110,0.2);
+}
+
+.btn-ghost {
+  padding: 14px 32px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid var(--border-bright);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s;
+  display: inline-block;
+}
+
+.btn-ghost:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 80px 80px 40px;
+  position: relative;
+  z-index: 1;
+  gap: 16px;
+  opacity: 0;
+  animation: fadeIn 1.2s ease 0.7s forwards;
+}
+
+.hero-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 24px 28px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.hero-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.hero-card:hover { border-color: var(--border-bright); }
+.hero-card:hover::before { opacity: 1; }
+
+.hero-card-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.hero-card-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 38px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.hero-card-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-up {
+  background: rgba(39,174,96,0.12);
+  color: var(--green);
+  padding: 2px 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+
+.badge-dn {
+  background: rgba(192,57,43,0.12);
+  color: var(--red);
+  padding: 2px 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+
+.hero-chart {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 20px 28px 14px;
+}
+
+.hero-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.hero-chart-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hero-chart-return {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+svg.sparkline { width: 100%; height: 60px; overflow: visible; }
+
+.hero-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.hero-metric {
+  background: var(--surface-2);
+  padding: 18px 20px;
+}
+
+.hero-metric-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.hero-metric-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ─── SECTION STRUCTURE ─── */
+section {
+  padding: 100px 80px;
+  border-top: 1px solid var(--border);
+}
+
+.section-tag {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.section-tag::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.section-tag-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 3.5vw, 56px);
+  font-weight: 300;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.section-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.section-sub {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  max-width: 520px;
+}
+
+/* ─── STATS BAR ─── */
+.stats-bar {
+  padding: 0 80px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  background: var(--surface);
+}
+
+.stat-item {
+  padding: 40px 0;
+  border-right: 1px solid var(--border);
+  padding-left: 40px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.stat-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stat-item:last-child { border-right: none; }
+
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ─── MODELS SECTION ─── */
+.models-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin-top: 60px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.model-card {
+  background: var(--surface-2);
+  padding: 40px 36px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.model-card:hover { background: var(--surface-3); }
+
+.model-card.featured {
+  background: var(--surface-3);
+  grid-column: span 1;
+}
+
+.model-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 2px;
+  background: var(--gold);
+  transition: width 0.4s ease;
+}
+
+.model-card:hover::after { width: 100%; }
+
+.model-rank {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.model-rank-num {
+  width: 22px; height: 22px;
+  border: 1px solid var(--border-bright);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--gold);
+}
+
+.model-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.model-desc {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+}
+
+.model-returns {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.model-ret {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.model-ret-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.model-ret-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+.neu { color: var(--gold); }
+
+.model-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ─── ALLOCATION SECTION ─── */
+.allocation-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  margin-top: 60px;
+  align-items: center;
+}
+
+.alloc-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alloc-bar-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 60px;
+  gap: 16px;
+  align-items: center;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.alloc-bar-item.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.alloc-bar-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.alloc-bar-track {
+  height: 3px;
+  background: var(--surface-4);
+  position: relative;
+  overflow: hidden;
+}
+
+.alloc-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
+}
+
+.alloc-bar-item.visible .alloc-bar-fill {
+  transform: scaleX(1);
+}
+
+.alloc-bar-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+  text-align: right;
+}
+
+.alloc-donut-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.donut-container {
+  position: relative;
+  width: 240px;
+  height: 240px;
+}
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-center-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.donut-center-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.donut-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 24px;
+  width: 100%;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}
+
+/* ─── PERFORMANCE SECTION ─── */
+.perf-layout {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 40px;
+  margin-top: 60px;
+}
+
+.perf-chart-area {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 28px 32px;
+}
+
+.perf-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.perf-legend {
+  display: flex;
+  gap: 20px;
+}
+
+.perf-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+}
+
+.perf-legend-line {
+  width: 16px;
+  height: 2px;
+}
+
+svg.perf-chart { width: 100%; height: 200px; overflow: visible; }
+
+.perf-table-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+}
+
+.perf-table-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: var(--surface-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.perf-th {
+  padding: 12px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.perf-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+
+.perf-row:last-child { border-bottom: none; }
+.perf-row:hover { background: var(--surface-3); }
+
+.perf-td {
+  padding: 14px 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.perf-td.year {
+  font-family: 'DM Mono', monospace;
+  color: var(--text-primary);
+  font-size: 11px;
+}
+
+.perf-td.ara { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 600; }
+
+/* ─── APPROACH SECTION ─── */
+.approach-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  margin-top: 60px;
+}
+
+.approach-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-left: 1px solid var(--border);
+}
+
+.approach-step {
+  padding: 28px 0 28px 32px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: padding-left 0.3s;
+  position: relative;
+}
+
+.approach-step::before {
+  content: '';
+  position: absolute;
+  left: -1px; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--gold);
+  transform: scaleY(0);
+  transition: transform 0.3s;
+}
+
+.approach-step:hover { padding-left: 40px; }
+.approach-step:hover::before { transform: scaleY(1); }
+
+.approach-step-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.approach-step-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.approach-step-desc {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+.approach-principles {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.principle-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 28px;
+  position: relative;
+}
+
+.principle-icon {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.principle-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.principle-desc {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+/* ─── CTA SECTION ─── */
+.cta-section {
+  padding: 120px 80px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(200,169,110,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cta-headline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(40px, 4vw, 60px);
+  font-weight: 300;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.cta-headline em { font-style: italic; color: var(--gold); }
+
+.cta-sub {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  max-width: 400px;
+  margin-bottom: 40px;
+}
+
+.cta-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input::placeholder { color: var(--text-muted); }
+.form-input:focus { border-color: var(--gold-dark); }
+
+.form-select {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.form-select:focus { border-color: var(--gold-dark); color: var(--text-primary); }
+
+/* ─── FOOTER ─── */
+footer {
+  padding: 48px 80px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.footer-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+}
+
+.footer-copy {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+}
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+}
+
+.footer-links a {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--gold); }
+
+.footer-disclaimer {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  max-width: 300px;
+  line-height: 1.8;
+  text-align: right;
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-right { padding: 0 24px 60px; }
+  .hero-left { padding: 60px 24px; }
+  section { padding: 60px 24px; }
+  .stats-bar { padding: 0 24px; grid-template-columns: 1fr 1fr; }
+  .models-grid { grid-template-columns: 1fr; }
+  .allocation-layout { grid-template-columns: 1fr; }
+  .perf-layout { grid-template-columns: 1fr; }
+  .approach-layout { grid-template-columns: 1fr; }
+  .cta-section { grid-template-columns: 1fr; padding: 60px 24px; }
+  footer { flex-direction: column; gap: 24px; padding: 40px 24px; text-align: center; }
+  .footer-disclaimer { text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <span class="nav-logo-mark">ARA</span>
+    <span class="nav-logo-sub">Financial Advisory</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#models">Models</a></li>
+    <li><a href="#performance">Performance</a></li>
+    <li><a href="#approach">Approach</a></li>
+    <li><a href="#allocation">Allocation</a></li>
+  </ul>
+  <a class="nav-cta" href="#contact">Request Access</a>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner" id="ticker">
+    <!-- JS generated -->
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="hero" style="border:none;">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-lines"></div>
+
+  <div class="hero-left">
+    <div class="hero-tag">
+      <div class="hero-tag-dot"></div>
+      <span class="hero-tag-text">ARA Investment Framework — Active Edition</span>
+    </div>
+    <h1 class="hero-headline">
+      Where Capital<br>Meets <em>Conviction.</em>
+    </h1>
+    <p class="hero-desc">
+      ARA Financial Advisory deploys systematic, research-driven investment models across Indonesian equities, Islamic instruments, and regional fixed income — engineered for asymmetric risk-adjusted return.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#models">Explore Models</a>
+      <a class="btn-ghost" href="#performance">Track Record</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="hero-card">
+        <div class="hero-card-label">AUM Under Management</div>
+        <div class="hero-card-value" data-counter="2.4">0</div>
+        <div class="hero-card-sub">Miliar IDR <span class="badge-up">↑ 18.3%</span></div>
+      </div>
+      <div class="hero-card">
+        <div class="hero-card-label">Avg. Annual Alpha</div>
+        <div class="hero-card-value" style="color:var(--green);" data-counter="14.7">0</div>
+        <div class="hero-card-sub">vs. IHSG benchmark <span class="badge-up">+3.2 SD</span></div>
+      </div>
+    </div>
+
+    <div class="hero-chart">
+      <div class="hero-chart-header">
+        <span class="hero-chart-title">Portfolio Equity Curve — YTD 2024</span>
+        <span class="hero-chart-return" id="animReturn">0%</span>
+      </div>
+      <svg class="sparkline" viewBox="0 0 400 60" id="sparkSvg">
+        <defs>
+          <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#27AE60" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#27AE60" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path id="sparkArea" fill="url(#sg)" opacity="0.8"/>
+        <path id="sparkLine" fill="none" stroke="#27AE60" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="hero-metrics">
+      <div class="hero-metric">
+        <div class="hero-metric-label">Sharpe Ratio</div>
+        <div class="hero-metric-value neu">1.82</div>
+      </div>
+      <div class="hero-metric">
+        <div class="hero-metric-label">Max Drawdown</div>
+        <div class="hero-metric-value neg">–9.4%</div>
+      </div>
+      <div class="hero-metric">
+        <div class="hero-metric-label">Win Rate</div>
+        <div class="hero-metric-value pos">68.3%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num" data-counter="47">0</div>
+    <div class="stat-label">Portfolio Holdings</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-counter="5">0</div>
+    <div class="stat-label">Investment Models</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-counter="312">0</div>
+    <div class="stat-label">Research Reports</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-counter="4">0</div>
+    <div class="stat-label">Years Track Record</div>
+  </div>
+</div>
+
+<!-- MODELS SECTION -->
+<section id="models">
+  <div class="reveal">
+    <div class="section-tag"><span class="section-tag-text">Investment Models</span></div>
+    <h2 class="section-title">Five Frameworks.<br><em>One Objective.</em></h2>
+    <p class="section-sub">Each model is architected around a specific risk-return mandate, informed by quantitative screening, fundamental research, and Islamic finance compliance.</p>
+  </div>
+
+  <div class="models-grid reveal" style="transition-delay:0.15s">
+    <div class="model-card featured">
+      <div class="model-rank"><span class="model-rank-num">01</span> Flagship Model</div>
+      <div class="model-name">ARA Alpha<br>Growth</div>
+      <div class="model-desc">High-conviction equity portfolio targeting Indonesia's structural growth sectors: consumer, digital infrastructure, and natural resources. 15–25 positions, active rotation.</div>
+      <div class="model-returns">
+        <div class="model-ret">
+          <div class="model-ret-label">2024 Return</div>
+          <div class="model-ret-val pos">+31.4%</div>
+        </div>
+        <div class="model-ret">
+          <div class="model-ret-label">3Y CAGR</div>
+          <div class="model-ret-val pos">+22.7%</div>
+        </div>
+      </div>
+      <div class="model-tags">
+        <span class="tag">Equity</span>
+        <span class="tag">Growth</span>
+        <span class="tag">IDX</span>
+        <span class="tag">Syariah</span>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-rank"><span class="model-rank-num">02</span> Balanced</div>
+      <div class="model-name">ARA Balanced<br>Income</div>
+      <div class="model-desc">Blended allocation across dividend equities and sukuk instruments. Targets 12–16% annual return with reduced drawdown profile for capital preservation.</div>
+      <div class="model-returns">
+        <div class="model-ret">
+          <div class="model-ret-label">2024 Return</div>
+          <div class="model-ret-val pos">+18.9%</div>
+        </div>
+        <div class="model-ret">
+          <div class="model-ret-label">Drawdown</div>
+          <div class="model-ret-val neg">–5.2%</div>
+        </div>
+      </div>
+      <div class="model-tags">
+        <span class="tag">Balanced</span>
+        <span class="tag">Sukuk</span>
+        <span class="tag">Dividen</span>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-rank"><span class="model-rank-num">03</span> Islamic</div>
+      <div class="model-name">ARA Syariah<br>Select</div>
+      <div class="model-desc">Exclusively DES-listed equities filtered through the ARA Islamic ESG framework. Aligns with Maqashid al-Shariah principles across all holdings.</div>
+      <div class="model-returns">
+        <div class="model-ret">
+          <div class="model-ret-label">2024 Return</div>
+          <div class="model-ret-val pos">+26.1%</div>
+        </div>
+        <div class="model-ret">
+          <div class="model-ret-label">Sharpe</div>
+          <div class="model-ret-val neu">1.94</div>
+        </div>
+      </div>
+      <div class="model-tags">
+        <span class="tag">DES</span>
+        <span class="tag">Syariah</span>
+        <span class="tag">ESG</span>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-rank"><span class="model-rank-num">04</span> Tactical</div>
+      <div class="model-name">ARA Sector<br>Rotation</div>
+      <div class="model-desc">Macro-driven rotation model exploiting BEI sector cycles. Uses quantitative momentum screens with monthly rebalancing across 9 IDX sectors.</div>
+      <div class="model-returns">
+        <div class="model-ret">
+          <div class="model-ret-label">2024 Return</div>
+          <div class="model-ret-val pos">+29.3%</div>
+        </div>
+        <div class="model-ret">
+          <div class="model-ret-label">Beta</div>
+          <div class="model-ret-val neu">0.78</div>
+        </div>
+      </div>
+      <div class="model-tags">
+        <span class="tag">Macro</span>
+        <span class="tag">Rotasi</span>
+        <span class="tag">IDX</span>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-rank"><span class="model-rank-num">05</span> Defensive</div>
+      <div class="model-name">ARA Capital<br>Preservation</div>
+      <div class="model-desc">Low-volatility mandate focused on SBN, ORI, and blue-chip dividend stocks. Designed for capital preservation with inflation-beating net returns.</div>
+      <div class="model-returns">
+        <div class="model-ret">
+          <div class="model-ret-label">2024 Return</div>
+          <div class="model-ret-val pos">+11.2%</div>
+        </div>
+        <div class="model-ret">
+          <div class="model-ret-label">Volatility</div>
+          <div class="model-ret-val neu">4.1%</div>
+        </div>
+      </div>
+      <div class="model-tags">
+        <span class="tag">Konservatif</span>
+        <span class="tag">SBN</span>
+        <span class="tag">Low-Vol</span>
+      </div>
+    </div>
+
+    <!-- Promo card -->
+    <div class="model-card" style="background:var(--surface-3);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:16px;border:1px dashed var(--border-bright);">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--text-muted);letter-spacing:0.05em;">New Model</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--gold);line-height:1.2;">ARA ASEAN<br>Opportunities</div>
+      <div style="font-size:11px;color:var(--text-muted);line-height:1.8;max-width:200px;">Regional equity expansion. Launching Q1 2025.</div>
+      <a class="btn-ghost" href="#contact" style="font-size:9px;padding:10px 20px;">Join Waitlist</a>
+    </div>
+  </div>
+</section>
+
+<!-- PERFORMANCE SECTION -->
+<section id="performance" style="background:var(--surface)">
+  <div class="reveal">
+    <div class="section-tag"><span class="section-tag-text">Track Record</span></div>
+    <h2 class="section-title">Consistent Outperformance<br>Across <em>Market Cycles.</em></h2>
+    <p class="section-sub">ARA models have systematically outperformed the IDX Composite across bull, bear, and sideways markets since inception.</p>
+  </div>
+
+  <div class="perf-layout reveal" style="transition-delay:0.15s">
+    <div class="perf-chart-area">
+      <div class="perf-chart-header">
+        <div class="section-tag" style="margin:0">
+          <span class="section-tag-text" style="font-size:8px;">Equity Curve Comparison</span>
+        </div>
+        <div class="perf-legend">
+          <div class="perf-legend-item">
+            <div class="perf-legend-line" style="background:var(--gold)"></div>
+            ARA Alpha Growth
+          </div>
+          <div class="perf-legend-item">
+            <div class="perf-legend-line" style="background:#555"></div>
+            IHSG
+          </div>
+        </div>
+      </div>
+      <svg class="perf-chart" viewBox="0 0 560 200" id="perfChartSvg">
+        <defs>
+          <linearGradient id="pg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#C8A96E" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#C8A96E" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- Y gridlines -->
+        <line x1="0" y1="40" x2="560" y2="40" stroke="rgba(200,169,110,0.07)" stroke-width="1"/>
+        <line x1="0" y1="80" x2="560" y2="80" stroke="rgba(200,169,110,0.07)" stroke-width="1"/>
+        <line x1="0" y1="120" x2="560" y2="120" stroke="rgba(200,169,110,0.07)" stroke-width="1"/>
+        <line x1="0" y1="160" x2="560" y2="160" stroke="rgba(200,169,110,0.07)" stroke-width="1"/>
+        <!-- Labels -->
+        <text x="0" y="38" font-size="8" fill="rgba(200,169,110,0.4)" font-family="DM Mono">+40%</text>
+        <text x="0" y="78" font-size="8" fill="rgba(200,169,110,0.4)" font-family="DM Mono">+30%</text>
+        <text x="0" y="118" font-size="8" fill="rgba(200,169,110,0.4)" font-family="DM Mono">+20%</text>
+        <text x="0" y="158" font-size="8" fill="rgba(200,169,110,0.4)" font-family="DM Mono">+10%</text>
+        <!-- ARA area -->
+        <path id="perfArea" fill="url(#pg)"/>
+        <!-- IHSG line -->
+        <path id="ihsgLine" fill="none" stroke="#444" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <!-- ARA line -->
+        <path id="araLine" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;padding:0 20px;">
+        <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--text-muted)">2021</span>
+        <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--text-muted)">2022</span>
+        <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--text-muted)">2023</span>
+        <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--text-muted)">2024</span>
+      </div>
+    </div>
+
+    <div class="perf-table-area">
+      <div class="perf-table-header">
+        <div class="perf-th">Year</div>
+        <div class="perf-th">ARA Alpha</div>
+        <div class="perf-th">IHSG</div>
+      </div>
+      <div class="perf-row">
+        <div class="perf-td year">2024</div>
+        <div class="perf-td ara pos">+31.4%</div>
+        <div class="perf-td" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-secondary)">+2.8%</div>
+      </div>
+      <div class="perf-row">
+        <div class="perf-td year">2023</div>
+        <div class="perf-td ara pos">+28.6%</div>
+        <div class="perf-td" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-secondary)">+6.2%</div>
+      </div>
+      <div class="perf-row">
+        <div class="perf-td year">2022</div>
+        <div class="perf-td ara pos">+12.1%</div>
+        <div class="perf-td" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--red)">–3.1%</div>
+      </div>
+      <div class="perf-row">
+        <div class="perf-td year">2021</div>
+        <div class="perf-td ara pos">+19.8%</div>
+        <div class="perf-td" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-secondary)">+10.1%</div>
+      </div>
+      <div class="perf-row" style="background:var(--surface-3);border-top:1px solid var(--border-bright)">
+        <div class="perf-td year" style="color:var(--gold)">4Y CAGR</div>
+        <div class="perf-td ara pos">+22.7%</div>
+        <div class="perf-td" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-secondary)">+3.9%</div>
+      </div>
+      <div style="padding:20px 16px;border-top:1px solid var(--border)">
+        <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px">Risk Metrics</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div><div style="font-size:8px;font-family:'DM Mono',monospace;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:3px">SHARPE</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold)">1.82</div></div>
+          <div><div style="font-size:8px;font-family:'DM Mono',monospace;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:3px">SORTINO</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold)">2.41</div></div>
+          <div><div style="font-size:8px;font-family:'DM Mono',monospace;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:3px">MAX DD</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--red)">–9.4%</div></div>
+          <div><div style="font-size:8px;font-family:'DM Mono',monospace;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:3px">CALMAR</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold)">2.42</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALLOCATION SECTION -->
+<section id="allocation">
+  <div class="reveal">
+    <div class="section-tag"><span class="section-tag-text">Asset Allocation</span></div>
+    <h2 class="section-title">Diversified by<br><em>Design.</em></h2>
+    <p class="section-sub">The ARA Alpha Growth model maintains disciplined sector exposure limits with dynamic rebalancing triggered by momentum shifts and fundamental catalysts.</p>
+  </div>
+
+  <div class="allocation-layout">
+    <div class="alloc-bars">
+      <div class="alloc-bar-item" style="transition-delay:0s">
+        <span class="alloc-bar-label">Consumer</span>
+        <div class="alloc-bar-track"><div class="alloc-bar-fill" style="width:100%"></div></div>
+        <span class="alloc-bar-pct">28%</span>
+      </div>
+      <div class="alloc-bar-item" style="transition-delay:0.1s">
+        <span class="alloc-bar-label">Keuangan</span>
+        <div class="alloc-bar-track"><div class="alloc-bar-fill" style="width:86%"></div></div>
+        <span class="alloc-bar-pct">24%</span>
+      </div>
+      <div class="alloc-bar-item" style="transition-delay:0.2s">
+        <span class="alloc-bar-label">Komoditas</span>
+        <div class="alloc-bar-track"><div class="alloc-bar-fill" style="width:54%"></div></div>
+        <span class="alloc-bar-pct">15%</span>
+      </div>
+      <div class="alloc-bar-item" style="transition-delay:0.3s">
+        <span class="alloc-bar-label">Infrastruktur</span>
+        <div class="alloc-bar-track"><div class="alloc-bar-fill" style="width:43%"></div></div>
+        <span class="alloc-bar-pct">12%</span>
+      </div>
+      <div class="alloc-bar-item" style="transition-delay:0.4s">
+        <span class="alloc-bar-label">Teknologi</span>
+        <div class="alloc-bar-track"><div class="alloc-bar-fill" style="width:36%"></div></div>
+        <span class="alloc-bar-pct">10%</span>
+      </div>
+      <div class="alloc-bar-item" style="transition-delay:0.5s">
+        <span class="alloc-bar-label">Properti</span>
+        <div class="alloc-bar-track"><div class="alloc-bar-fill" style="width:25%"></div></div>
+        <span class="alloc-bar-pct">7%</span>
+      </div>
+      <div class="alloc-bar-item" style="transition-delay:0.6s">
+        <span class="alloc-bar-label">Kas & Sukuk</span>
+        <div class="alloc-bar-track"><div class="alloc-bar-fill" style="width:14%"></div></div>
+        <span class="alloc-bar-pct">4%</span>
+      </div>
+    </div>
+
+    <div class="alloc-donut-wrap">
+      <div class="donut-container">
+        <svg viewBox="0 0 200 200" width="240" height="240">
+          <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(200,169,110,0.06)" stroke-width="28"/>
+          <!-- Segments: total circumference ~= 502 -->
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#C8A96E" stroke-width="28"
+            stroke-dasharray="140.6 361.4" stroke-dashoffset="125" opacity="0.9"/>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#8A6D35" stroke-width="28"
+            stroke-dasharray="120.5 381.5" stroke-dashoffset="-15.6" opacity="0.9"/>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#5A4820" stroke-width="28"
+            stroke-dasharray="75.3 426.7" stroke-dashoffset="-136.1" opacity="0.9"/>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#3A2F15" stroke-width="28"
+            stroke-dasharray="60.2 441.8" stroke-dashoffset="-211.4" opacity="0.9"/>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#2A2210" stroke-width="28"
+            stroke-dasharray="50.2 451.8" stroke-dashoffset="-271.6" opacity="0.9"/>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#1E1A0D" stroke-width="28"
+            stroke-dasharray="35.1 466.9" stroke-dashoffset="-321.8" opacity="0.9"/>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#141208" stroke-width="28"
+            stroke-dasharray="20.1 481.9" stroke-dashoffset="-356.9" opacity="0.9"/>
+        </svg>
+        <div class="donut-center">
+          <div class="donut-center-val">100%</div>
+          <div class="donut-center-label">Allocated</div>
+        </div>
+      </div>
+
+      <div class="donut-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#C8A96E"></div>Consumer 28%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8A6D35"></div>Keuangan 24%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#5A4820"></div>Komoditas 15%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3A2F15"></div>Infrastruktur 12%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2A2210"></div>Teknologi 10%</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3A3A3A"></div>Properti 7%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APPROACH SECTION -->
+<section id="approach" style="background:var(--surface)">
+  <div class="reveal">
+    <div class="section-tag"><span class="section-tag-text">Investment Philosophy</span></div>
+    <h2 class="section-title">Process-Driven.<br><em>Conviction-Led.</em></h2>
+  </div>
+
+  <div class="approach-layout">
+    <div class="approach-steps reveal" style="transition-delay:0.1s">
+      <div class="approach-step">
+        <div class="approach-step-num">01 — Universe Screening</div>
+        <div class="approach-step-title">Quantitative Filter</div>
+        <div class="approach-step-desc">IDX universe filtered through 12 quantitative screens: ROE, ROIC, debt-to-equity, free cash flow yield, earnings momentum, and Islamic compliance (DES). Reduces 900+ stocks to ~80 candidates.</div>
+      </div>
+      <div class="approach-step">
+        <div class="approach-step-num">02 — Deep Fundamental</div>
+        <div class="approach-step-title">Business Quality Analysis</div>
+        <div class="approach-step-desc">Sector-by-sector fundamental analysis covering competitive moat, management track record, earnings quality, and 3-year DCF valuation. Targets 15–25 high-conviction names.</div>
+      </div>
+      <div class="approach-step">
+        <div class="approach-step-num">03 — Risk Overlay</div>
+        <div class="approach-step-title">Macro & Tail Risk</div>
+        <div class="approach-step-desc">Portfolio stress-tested against interest rate shifts, commodity cycles, and BI policy changes. Hard drawdown circuit-breakers at portfolio and individual position levels.</div>
+      </div>
+      <div class="approach-step">
+        <div class="approach-step-num">04 — Execution</div>
+        <div class="approach-step-title">Systematic Entry & Exit</div>
+        <div class="approach-step-desc">Technical timing overlaid on fundamental thesis for optimal entry. Trailing stop-loss framework with defined profit-taking tranches at 20%, 40%, and 60% gain targets.</div>
+      </div>
+      <div class="approach-step">
+        <div class="approach-step-num">05 — Monitor</div>
+        <div class="approach-step-title">Continuous Surveillance</div>
+        <div class="approach-step-desc">Monthly portfolio review against thesis drivers. Earnings revision triggers, corporate action monitoring, and sector rotation signals reviewed weekly by the investment committee.</div>
+      </div>
+    </div>
+
+    <div class="approach-principles reveal" style="transition-delay:0.2s">
+      <div class="principle-card">
+        <div class="principle-icon">◆ PRINCIPLE I</div>
+        <div class="principle-title">Asymmetric Return</div>
+        <div class="principle-desc">We only enter positions where the upside potential exceeds downside risk by at least 3:1 on a risk-adjusted, probability-weighted basis.</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-icon">◆ PRINCIPLE II</div>
+        <div class="principle-title">Islamic Finance First</div>
+        <div class="principle-desc">All equity positions comply with OJK Daftar Efek Syariah. We apply the ARA Islamic ESG Filter as an additional screen beyond regulatory minimum.</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-icon">◆ PRINCIPLE III</div>
+        <div class="principle-title">Data Over Narrative</div>
+        <div class="principle-desc">Investment decisions are driven by quantifiable evidence — financial ratios, earnings revisions, valuation spreads — not market storytelling or consensus opinion.</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-icon">◆ PRINCIPLE IV</div>
+        <div class="principle-title">Transparency of Record</div>
+        <div class="principle-desc">Full audited track record available. We report performance gross and net of fees, with attribution analysis by position and sector quarterly.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="cta-section" id="contact" style="border-top:1px solid var(--border);padding:120px 80px">
+  <div class="reveal">
+    <h2 class="cta-headline">Start Your<br><em>Investment Journey.</em></h2>
+    <p class="cta-sub">Request a model overview or schedule a consultation with the ARA research team. Minimum investment and model eligibility will be assessed at onboarding.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:24px">
+      <div style="display:flex;gap:12px;align-items:center">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:0.15em">✉</span>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-secondary);letter-spacing:0.1em">advisory@araspace.id</span>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:0.15em">◈</span>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-secondary);letter-spacing:0.1em">@ARATrader · IDX · BEI</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-form reveal" style="transition-delay:0.2s">
+    <div class="form-row">
+      <input class="form-input" type="text" placeholder="Nama Lengkap">
+      <input class="form-input" type="email" placeholder="Email Address">
+    </div>
+    <select class="form-select">
+      <option value="">Pilih Model Investasi</option>
+      <option>ARA Alpha Growth</option>
+      <option>ARA Balanced Income</option>
+      <option>ARA Syariah Select</option>
+      <option>ARA Sector Rotation</option>
+      <option>ARA Capital Preservation</option>
+    </select>
+    <input class="form-input" type="text" placeholder="Dana yang Diinvestasikan (IDR)">
+    <input class="form-input" type="text" placeholder="Pertanyaan / Pesan (opsional)">
+    <button class="btn-primary" style="align-self:flex-start">Submit Inquiry →</button>
+    <p style="font-size:10px;color:var(--text-muted);line-height:1.7;margin-top:4px">Dengan mengirimkan formulir ini, Anda menyetujui untuk dihubungi oleh tim ARA Financial Advisory. Semua data dilindungi sesuai kebijakan privasi kami.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    <div class="footer-logo">ARA Financial Advisory</div>
+    <div class="footer-copy">© 2025 ARA Space · All rights reserved · Kota Medan, Sumatera Utara</div>
+  </div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Disclaimer</a>
+    <a href="#">Research</a>
+    <a href="#">Methodology</a>
+  </div>
+  <div class="footer-disclaimer">
+    Past performance does not guarantee future results. All investment involves risk. This is not a solicitation or offer to buy/sell securities.
+  </div>
+</footer>
+
+<script>
+/* ─── TICKER DATA ─── */
+const tickers = [
+  {sym:'BBCA',px:'9.850',chg:'+0.51%',up:true},{sym:'BBRI',px:'4.230',chg:'-0.94%',up:false},
+  {sym:'BMRI',px:'6.125',chg:'+1.24%',up:true},{sym:'ADRO',px:'3.350',chg:'+2.14%',up:true},
+  {sym:'TLKM',px:'3.720',chg:'-0.27%',up:false},{sym:'ASII',px:'5.200',chg:'+0.39%',up:true},
+  {sym:'GOTO',px:'62',chg:'-1.59%',up:false},{sym:'UNVR',px:'2.480',chg:'+0.81%',up:true},
+  {sym:'IHSG',px:'7.248',chg:'+0.33%',up:true},{sym:'TAPG',px:'1.175',chg:'+1.73%',up:true},
+  {sym:'AALI',px:'8.100',chg:'-0.62%',up:false},{sym:'INKP',px:'8.250',chg:'+0.61%',up:true},
+  {sym:'LSIP',px:'1.215',chg:'+0.41%',up:true},{sym:'SIMP',px:'545',chg:'-0.91%',up:false},
+  {sym:'SIDO',px:'760',chg:'+1.33%',up:true}
+];
+
+function buildTicker(){
+  const t = document.getElementById('ticker');
+  const all = [...tickers,...tickers];
+  t.innerHTML = all.map(d=>`
+    <div class="ticker-item">
+      <span class="ticker-sym">${d.sym}</span>
+      <span>${d.px}</span>
+      <span class="${d.up?'ticker-up':'ticker-dn'}">${d.chg}</span>
+    </div>`).join('');
+}
+buildTicker();
+
+/* ─── SPARKLINE (Hero) ─── */
+function buildSparkline(){
+  const W=400, H=60;
+  const pts = [10,18,14,22,19,26,23,30,27,35,31,40,36,42,38,45,41,50,47,55,52,58];
+  const mn=Math.min(...pts), mx=Math.max(...pts);
+  const norm = pts.map((v,i)=>({
+    x: i/(pts.length-1)*W,
+    y: H - ((v-mn)/(mx-mn))*(H-4)-2
+  }));
+  const line = norm.map((p,i)=>`${i===0?'M':'L'}${p.x},${p.y}`).join(' ');
+  const area = line + ` L${W},${H} L0,${H} Z`;
+  document.getElementById('sparkLine').setAttribute('d',line);
+  document.getElementById('sparkArea').setAttribute('d',area);
+
+  // Animate return counter
+  let n=0; const target=31.4;
+  const iv = setInterval(()=>{
+    n = Math.min(n+0.6, target);
+    document.getElementById('animReturn').textContent = '+'+n.toFixed(1)+'%';
+    if(n>=target) clearInterval(iv);
+  },30);
+}
+buildSparkline();
+
+/* ─── PERF CHART ─── */
+function buildPerfChart(){
+  const W=560, H=200;
+  const ara  = [0,5,12,8,20,16,25,30,28,35,32,40,44,50,48,56,60,58,66,70,76,80,86,92,100];
+  const ihsg = [0,3,8,5,10,7,12,15,12,18,14,17,20,22,18,24,26,24,28,30,27,32,34,36,40];
+
+  function norm(arr){
+    const mn=0, mx=100;
+    return arr.map((v,i)=>({x: i/(arr.length-1)*(W-40)+20, y: H - (v/mx)*(H-20)-10}));
+  }
+
+  const ap = norm(ara), ip = norm(ihsg);
+  const toPath = pts => pts.map((p,i)=>`${i===0?'M':'L'}${p.x},${p.y}`).join(' ');
+
+  document.getElementById('araLine').setAttribute('d', toPath(ap));
+  document.getElementById('ihsgLine').setAttribute('d', toPath(ip));
+
+  const area = toPath(ap)+` L${ap[ap.length-1].x},${H} L${ap[0].x},${H} Z`;
+  document.getElementById('perfArea').setAttribute('d', area);
+}
+buildPerfChart();
+
+/* ─── COUNTER ANIMATION ─── */
+function animateCounter(el){
+  const target = parseFloat(el.dataset.counter);
+  const isDecimal = target % 1 !== 0;
+  let current = 0;
+  const step = target / 60;
+  const iv = setInterval(()=>{
+    current = Math.min(current + step, target);
+    el.textContent = isDecimal ? current.toFixed(1) : Math.round(current);
+    if(current >= target) clearInterval(iv);
+  }, 20);
+}
+
+/* ─── INTERSECTION OBSERVER ─── */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      // Counter
+      e.target.querySelectorAll('[data-counter]').forEach(animateCounter);
+      // Also trigger stat items and bar items
+    }
+  });
+},{threshold:0.15});
+
+document.querySelectorAll('.reveal, .stat-item, .alloc-bar-item').forEach(el=>io.observe(el));
+
+// Separate observer for counters in stat bar
+const statIo = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      const counter = e.target.querySelector('[data-counter]');
+      if(counter) animateCounter(counter);
+    }
+  });
+},{threshold:0.3});
+document.querySelectorAll('.stat-item').forEach(el=>statIo.observe(el));
+
+// Hero counters immediate
+document.querySelectorAll('.hero-card [data-counter]').forEach(animateCounter);
+</script>
+
+</body>
+</html>
